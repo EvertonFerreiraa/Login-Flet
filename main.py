@@ -1,7 +1,7 @@
 import flet as ft
-from flet import (Column, Container, MainAxisAlignment, Page, Row, ScrollMode,
-                  Text, TextButton, TextField, TextThemeStyle, ThemeMode,
-                  UserControl)
+from flet import (AlertDialog, Column, Container, MainAxisAlignment, Page, Row,
+                  ScrollMode, Text, TextButton, TextField, TextThemeStyle,
+                  ThemeMode, UserControl)
 
 
 class LoginPage(UserControl):
@@ -38,32 +38,32 @@ class LoginPage(UserControl):
             content=Column(
                 alignment=MainAxisAlignment.CENTER,
                 controls=[
-                        Row(
-                            alignment=MainAxisAlignment.CENTER,
-                            controls=[
-                                self.text_ini,
-                            ]
-                        ),
-                        Row(
-                            alignment=MainAxisAlignment.CENTER,
-                            controls=[
-                                self.textfild_user,
-                            ]
-                        ),
-                        Row(
-                            alignment=MainAxisAlignment.CENTER,
-                            controls=[
-                                self.textfild_password,
-                            ]
-                        ),
-                        Row(
-                            alignment=MainAxisAlignment.CENTER,
-                            controls=[
-                                self.button_login,
-                                self.button_exit,
-                                self.button_register,
-                            ]
-                        ),
+                    Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            self.text_ini,
+                        ]
+                    ),
+                    Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            self.textfild_user,
+                        ]
+                    ),
+                    Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            self.textfild_password,
+                        ]
+                    ),
+                    Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            self.button_login,
+                            self.button_exit,
+                            self.button_register,
+                        ]
+                    ),
                 ]
             )
         )
@@ -147,9 +147,11 @@ def main(page: Page):
     page.scroll = ScrollMode.ALWAYS
 
     def clicked_reg_db(e):
+
         user = register_page.textfield_name.value
         password = register_page.textfield_password.value
         password_conf = register_page.textfield_password_confirm.value
+
         if user != '' and password == password_conf:
             page.clean()
             page.add(
@@ -181,6 +183,29 @@ def main(page: Page):
                         controls=[
                             Text(
                                 value="Digite Seu Nome de Usuário!",
+                                style=TextThemeStyle.TITLE_LARGE,
+                                color=ft.colors.RED
+                            )
+                        ]
+                    )
+                )
+            )
+            page.update()
+            page.add(
+                register_page
+            )
+
+        if user and password == '' or password_conf == '':
+            page.clean()
+            page.add(
+                Container(
+                    alignment=ft.alignment.center,
+                    margin=ft.margin.all(10),
+                    content=Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            Text(
+                                value="Preencha os campos de senha!",
                                 style=TextThemeStyle.TITLE_LARGE,
                                 color=ft.colors.RED
                             )
@@ -230,7 +255,33 @@ def main(page: Page):
         pass
 
     def clicked_exit(e):
-        page.window_close()
+        def exit_confirm(e):
+            page.window_close()
+
+        def close_dialog(e):
+            dialog.open = False
+            page.update()
+
+        dialog = AlertDialog(
+            modal=True,
+            title=Text("Por Favor, Confirme:"),
+            content=Text("Você tem certeza que deseja sair?"),
+            actions=[
+                TextButton(
+                    text="Sim",
+                    on_click=exit_confirm
+                ),
+                TextButton(
+                    text="Não",
+                    on_click=close_dialog
+                ),
+            ],
+            actions_alignment=MainAxisAlignment.END,
+        )
+
+        page.dialog = dialog
+        dialog.open = True
+        page.update()
 
     def clicked_register(e):
         page.clean()
