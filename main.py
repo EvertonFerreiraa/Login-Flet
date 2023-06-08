@@ -1,133 +1,251 @@
 import flet as ft
-from flet import TextButton, TextThemeStyle, Text, MainAxisAlignment, ScrollMode, Page, TextField, Container, Column, Row
-import database
+from flet import (Column, Container, MainAxisAlignment, Page, Row, ScrollMode,
+                  Text, TextButton, TextField, TextThemeStyle, ThemeMode,
+                  UserControl)
+
+
+class LoginPage(UserControl):
+    def __init__(self):
+        super().__init__()
+        self.text_ini = Text(
+            value="Digite Usuário e Senha:",
+            style=TextThemeStyle.TITLE_MEDIUM,
+            color=ft.colors.WHITE,
+        )
+        self.textfild_user = TextField(
+            label="Usuário",
+            icon=ft.icons.PERSON,
+        )
+        self.textfild_password = TextField(
+            label="Senha",
+            icon=ft.icons.PASSWORD,
+            password=True,
+        )
+        self.button_login = TextButton(
+            text="Entrar",
+        )
+        self.button_exit = TextButton(
+            text="Sair",
+        )
+        self.button_register = TextButton(
+            text="Registrar"
+        )
+
+    def build(self):
+        return Container(
+            alignment=ft.alignment.center,
+            margin=ft.margin.all(100),
+            content=Column(
+                alignment=MainAxisAlignment.CENTER,
+                controls=[
+                        Row(
+                            alignment=MainAxisAlignment.CENTER,
+                            controls=[
+                                self.text_ini,
+                            ]
+                        ),
+                        Row(
+                            alignment=MainAxisAlignment.CENTER,
+                            controls=[
+                                self.textfild_user,
+                            ]
+                        ),
+                        Row(
+                            alignment=MainAxisAlignment.CENTER,
+                            controls=[
+                                self.textfild_password,
+                            ]
+                        ),
+                        Row(
+                            alignment=MainAxisAlignment.CENTER,
+                            controls=[
+                                self.button_login,
+                                self.button_exit,
+                                self.button_register,
+                            ]
+                        ),
+                ]
+            )
+        )
+
+
+class RegisterPage(UserControl):
+    def __init__(self):
+        super().__init__()
+        self.text_ini = Text(
+            value="Para se registrar preencha o formulário:",
+            style=TextThemeStyle.TITLE_MEDIUM,
+            color=ft.colors.WHITE,
+        )
+        self.textfield_name = TextField(
+            label="Nome de Usuário",
+            icon=ft.icons.PERSON,
+        )
+        self.textfield_password = TextField(
+            label="Senha de Acesso",
+            icon=ft.icons.PASSWORD,
+            password=True,
+        )
+        self.textfield_password_confirm = TextField(
+            label="Confirme a Senha",
+            icon=ft.icons.PASSWORD,
+            password=True,
+        )
+        self.button_register = TextButton(
+            text="Confirmar",
+        )
+        self.button_back = TextButton(
+            text="Voltar",
+        )
+
+    def build(self):
+        return Container(
+            alignment=ft.alignment.center,
+            margin=ft.margin.all(100),
+            content=Column(
+                alignment=MainAxisAlignment.CENTER,
+                controls=[
+                    Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            self.text_ini,
+                        ]
+                    ),
+                    Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            self.textfield_name,
+                        ]
+                    ),
+                    Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            self.textfield_password,
+                        ]
+                    ),
+                    Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            self.textfield_password_confirm,
+                        ]
+                    ),
+                    Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            self.button_register,
+                            self.button_back,
+                        ]
+                    )
+                ]
+            )
+        )
 
 
 def main(page: Page):
-    
+    page.theme_mode = ThemeMode.DARK
+    page.title = "Sistema de Login Simples"
     page.scroll = ScrollMode.ALWAYS
 
+    def clicked_reg_db(e):
+        user = register_page.textfield_name.value
+        password = register_page.textfield_password.value
+        password_conf = register_page.textfield_password_confirm.value
+        if user != '' and password == password_conf:
+            page.clean()
+            page.add(
+                Container(
+                    alignment=ft.alignment.center,
+                    margin=ft.margin.all(250),
+                    content=Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            Text(
+                                value=f"Bem Vindo, {user} ",
+                                style=TextThemeStyle.TITLE_LARGE,
+                                color=ft.colors.GREEN
+                            )
+                        ]
+                    )
+                )
+            )
+            page.update()
 
-    def clicked_enter(e):
+        if user == '':
+            page.clean()
+            page.add(
+                Container(
+                    alignment=ft.alignment.center,
+                    margin=ft.margin.all(10),
+                    content=Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            Text(
+                                value="Digite Seu Nome de Usuário!",
+                                style=TextThemeStyle.TITLE_LARGE,
+                                color=ft.colors.RED
+                            )
+                        ]
+                    )
+                )
+            )
+            page.update()
+            page.add(
+                register_page
+            )
+
+        if password != password_conf:
+            page.clean()
+            page.add(
+                Container(
+                    alignment=ft.alignment.center,
+                    margin=ft.margin.all(10),
+                    content=Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            Text(
+                                value="As senhas não conferem!",
+                                style=TextThemeStyle.TITLE_LARGE,
+                                color=ft.colors.RED
+                            )
+                        ]
+                    )
+                )
+            )
+            page.update()
+            page.add(
+                register_page
+            )
+
+    def clicked_reg_back(e):
+        page.clean()
+        page.add(
+            login_page
+        )
+
+    register_page = RegisterPage()
+    register_page.button_register.on_click = clicked_reg_db
+    register_page.button_back.on_click = clicked_reg_back
+
+    def clicked_login(e):
         pass
-    
+
     def clicked_exit(e):
-        pass
+        page.window_close()
 
     def clicked_register(e):
         page.clean()
         page.add(
-            Container(
-                Column(
-                    controls=[
-                        Row(
-                            alignment=MainAxisAlignment.CENTER,
-                            controls=[
-                                Text(
-                                    value="Formulário de Registro",
-                                    color=ft.colors.BLACK,
-                                    style=TextThemeStyle.TITLE_MEDIUM
-                                )
-                            ]
-                        ),
-                        Row(
-                            alignment=MainAxisAlignment.CENTER,
-                            controls=[
-                                TextField(
-                                    label="Nome Completo",
-                                    icon=ft.icons.PERSON,
-                                ),
-                            ]
-                        ),
-                        Row(
-                            alignment=MainAxisAlignment.CENTER,
-                            controls=[
-                                TextField(
-                                    label="Digite uma Senha",
-                                    password=True,
-                                    icon=ft.icons.PASSWORD
-                                )
-                            ]
-                        ),
-                        Row(
-                            alignment=MainAxisAlignment.CENTER,
-                            controls=[
-                                TextField(
-                                    label="Confirme a Senha",
-                                    password=True,
-                                    icon=ft.icons.PASSWORD
-                                )
-                            ]
-                        ),
-                        Row(
-                            alignment=MainAxisAlignment.CENTER,
-                            controls=[
-                                TextButton(
-                                    text="Confirmar",
-                                )
-                            ]
-                        ),
-                    ]
-                )
-            )
+            register_page,
         )
 
-    # Adicionar os Controles
-    page.add(
-        Container(
-        alignment=ft.alignment.center,
-            content=Column(
-                        controls=[
-                            Row(
-                                alignment=MainAxisAlignment.CENTER,
-                                controls=[
-                                    Text(
-                                        value="Digite Usuário e Senha",
-                                        style=TextThemeStyle.TITLE_MEDIUM,
-                                        color=ft.colors.BLACK,
-                                    ),
-                                ]
-                            ),
-                            Row(
-                                alignment=MainAxisAlignment.CENTER,
-                                controls=[
-                                    TextField(
-                                        label="Usuário",
-                                        icon=ft.icons.PERSON
-                                    ),
-                                ]
-                            ),
-                            Row(
-                                alignment=MainAxisAlignment.CENTER,
-                                controls=[
-                                    TextField(
-                                        label="Senha",
-                                        icon=ft.icons.PASSWORD
-                                    ),
-                                ]
-                            ),
-                            Row(
-                                alignment=MainAxisAlignment.CENTER,
-                                controls=[
-                                    TextButton(
-                                        text="Entrar",
-                                        on_click=clicked_enter,
-                                    ),
-                                    TextButton(
-                                        text="Sair",
-                                        on_click=clicked_exit
-                                    ),
-                                    TextButton(
-                                        text="Registrar",
-                                        on_click=clicked_register
-                                    ),
-                                ]
-                            ),
-                        ]
-                        )
-                        )
-                    )
+    login_page = LoginPage()
+    login_page.button_login.on_click = clicked_login
+    login_page.button_exit.on_click = clicked_exit
+    login_page.button_register.on_click = clicked_register
 
-    page.update()
+    page.add(
+        login_page,
+    )
+
 
 ft.app(target=main)
