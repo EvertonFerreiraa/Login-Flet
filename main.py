@@ -152,27 +152,30 @@ def main(page: Page):
         password = register_page.textfield_password.value
         password_conf = register_page.textfield_password_confirm.value
 
-        if user != '' and password == password_conf:
+        if user == '' and password == '' and password_conf == '':
             page.clean()
             page.add(
                 Container(
                     alignment=ft.alignment.center,
-                    margin=ft.margin.all(250),
+                    margin=ft.margin.all(10),
                     content=Row(
                         alignment=MainAxisAlignment.CENTER,
                         controls=[
                             Text(
-                                value=f"Bem Vindo, {user} ",
+                                value="Preencha todos os campos!",
                                 style=TextThemeStyle.TITLE_LARGE,
-                                color=ft.colors.GREEN
+                                color=ft.colors.RED
                             )
                         ]
                     )
                 )
             )
             page.update()
+            page.add(
+                register_page
+            )
 
-        if user == '':
+        elif user == '' and password == password_conf:
             page.clean()
             page.add(
                 Container(
@@ -195,30 +198,7 @@ def main(page: Page):
                 register_page
             )
 
-        if user and password == '' or password_conf == '':
-            page.clean()
-            page.add(
-                Container(
-                    alignment=ft.alignment.center,
-                    margin=ft.margin.all(10),
-                    content=Row(
-                        alignment=MainAxisAlignment.CENTER,
-                        controls=[
-                            Text(
-                                value="Preencha os campos de senha!",
-                                style=TextThemeStyle.TITLE_LARGE,
-                                color=ft.colors.RED
-                            )
-                        ]
-                    )
-                )
-            )
-            page.update()
-            page.add(
-                register_page
-            )
-
-        if password != password_conf:
+        elif user and password != password_conf:
             page.clean()
             page.add(
                 Container(
@@ -241,6 +221,49 @@ def main(page: Page):
                 register_page
             )
 
+        elif user and password == '' and password_conf == '':
+            page.clean()
+            page.add(
+                Container(
+                    alignment=ft.alignment.center,
+                    margin=ft.margin.all(10),
+                    content=Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            Text(
+                                value="Preencha a Senha!",
+                                style=TextThemeStyle.TITLE_LARGE,
+                                color=ft.colors.RED
+                            )
+                        ]
+                    )
+                )
+            )
+            page.update()
+            page.add(
+                register_page
+            )
+
+        elif user and password == password_conf:
+            page.clean()
+            page.add(
+                Container(
+                    alignment=ft.alignment.center,
+                    margin=ft.margin.all(250),
+                    content=Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            Text(
+                                value=f"Seja Bem Vindo {user} !",
+                                style=TextThemeStyle.TITLE_LARGE,
+                                color=ft.colors.GREEN
+                            )
+                        ]
+                    )
+                )
+            )
+            page.update()
+
     def clicked_reg_back(e):
         page.clean()
         page.add(
@@ -252,7 +275,98 @@ def main(page: Page):
     register_page.button_back.on_click = clicked_reg_back
 
     def clicked_login(e):
-        pass
+
+        user = login_page.textfild_user.value
+        password = login_page.textfild_password.value
+
+        if user == '' and password == '':
+            page.clean()
+            page.add(
+                Container(
+                    alignment=ft.alignment.center,
+                    margin=ft.margin.all(10),
+                    content=Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            Text(
+                                value="Preencha todos os Campos!",
+                                style=TextThemeStyle.TITLE_LARGE,
+                                color=ft.colors.RED
+                            )
+                        ]
+                    )
+                )
+            )
+            page.update()
+            page.add(
+                login_page
+            )
+
+        elif user and password == '':
+            page.clean()
+            page.add(
+                Container(
+                    alignment=ft.alignment.center,
+                    margin=ft.margin.all(10),
+                    content=Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            Text(
+                                value="Preencha a Senha!",
+                                style=TextThemeStyle.TITLE_LARGE,
+                                color=ft.colors.RED
+                            )
+                        ]
+                    )
+                )
+            )
+            page.update()
+            page.add(
+                login_page
+            )
+
+        elif password and user == '':
+            page.clean()
+            page.add(
+                Container(
+                    alignment=ft.alignment.center,
+                    margin=ft.margin.all(10),
+                    content=Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            Text(
+                                value="Preencha o Usuário!",
+                                style=TextThemeStyle.TITLE_LARGE,
+                                color=ft.colors.RED
+                            )
+                        ]
+                    )
+                )
+            )
+            page.update()
+            page.add(
+                login_page
+            )
+
+        elif user and password:
+            page.clean()
+            page.add(
+                Container(
+                    alignment=ft.alignment.center,
+                    margin=ft.margin.all(250),
+                    content=Row(
+                        alignment=MainAxisAlignment.CENTER,
+                        controls=[
+                            Text(
+                                value=f"Seja Bem Vindo {user} !",
+                                style=TextThemeStyle.TITLE_LARGE,
+                                color=ft.colors.GREEN
+                            )
+                        ]
+                    )
+                )
+            )
+            page.update()
 
     def clicked_exit(e):
         def exit_confirm(e):
