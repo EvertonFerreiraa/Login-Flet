@@ -11,16 +11,28 @@ class Database:
     >>> <Database object>
     """
 
-    def __init__(self, name: str):
+    def __init__(
+            self,
+            name: str
+    ):
         self._dbconnection = self._createdb(name)
         self._dbcursor = self._dbconnection.cursor()
         self.tables: list = []
 
-    def _createdb(self, databasename: str) -> sql3.Connection:
+    def _createdb(
+            self,
+            databasename: str
+    ) -> sql3.Connection:
+
         con = sql3.connect(databasename + '.db')
+        print('Database created successfully:', con)
         return con
 
-    def create_simple_table(self, name: str, columns: str):
+    def create_simple_table(
+            self,
+            name: str,
+            columns: str
+    ):
         """
         Crie uma tablena no banco de dados.
 
@@ -56,8 +68,7 @@ class Database:
     def insert_data_in_simple_table(
             self,
             table: str,
-            columns: str,
-            values: str,
+            values: list
     ):
         """
         Insira dados em uma tabela:
@@ -71,19 +82,18 @@ class Database:
 
         Args:
             table (str): Nome da Tabela
-            columns (str): Colunas que os dados serão inseridos
-            value (str): Valores que serão inseridos
+            value (list): Valores que serão inseridos
 
         Ex.:
         db.insert_data_in_simple_table(
-            table="Tabela", columns="col1, col2", values="1, 2")
+            table="Tabela", values="1, 2")
         """
 
-        sqlstatement = (
-            f"INSERT INTO {table} ({columns})  VALUES ({values})"
-        )
-        self._dbcursor.execute(sqlstatement)
+        placeholders = ','.join(['?' for _ in values])
+        sqlstatement = f"INSERT INTO {table} VALUES ({placeholders})"
+        self._dbcursor.execute(sqlstatement, values)
         self._dbconnection.commit()
+        print('Data entered successfully')
 
     def delete_data_in_simple_table(
             self,
@@ -110,12 +120,13 @@ class Database:
         )
         self._dbcursor.execute(sqlstatement)
         self._dbconnection.commit()
+        print('The data was deleted successfully')
 
     def update_data_in_simple_table(
             self,
             table: str,
             set: str,
-            condition: str,
+            condition: str
     ):
         """
         Atualize dados em uma tabela do banco de dados.
@@ -140,12 +151,13 @@ class Database:
             f"UPDATE {table} SET {set} WHERE {condition} ")
         self._dbcursor.execute(sqlstatement)
         self._dbconnection.commit()
+        print('Update done successfully')
 
     def select_data_in_simple_table(
             self,
             column: str,
             table: str
-    ):
+    ) -> list:
         """
         Consulte dados em uma tabela do banco de dados.
 
@@ -167,3 +179,52 @@ class Database:
         data = self._dbcursor.execute(sqlstatement)
         data_list = data.fetchall()
         return data_list
+
+
+if __name__ == "__main__":
+
+    # Criação e conexão do banco de dados:
+    db_system = Database("LOGIN")
+
+    # Criação de tabela:
+    db_system.create_simple_table(
+        name="usuarios",
+        columns="nome, senha"
+    )
+
+    # Inserindo dados na tabela:
+    db_system.insert_data_in_simple_table(
+        table="usuarios",
+        values=['Everton', 1234]
+    )
+
+    db_system.insert_data_in_simple_table(
+        table="usuarios",
+        values=['Milena', 4321]
+    )
+
+    # Consultando tabelas:
+    users = db_system.select_data_in_simple_table(
+        column="nome",
+        table="usuarios"
+    )
+    print(users)
+
+    password = db_system.select_data_in_simple_table(
+        column='senha',
+        table='usuarios'
+    )
+    print(password)
+
+    # Atualizando dados:
+    db_system.update_data_in_simple_table(
+        table='usuarios',
+        set='senha = 8766',
+        condition='senha = 1234'
+    )
+
+    # Deletando dados:
+    db_system.delete_data_in_simple_table(
+        table="usuarios",
+        condition="nome = 'Milena'"
+    )

@@ -5,5 +5,6 @@
         "editor.defaultFormatter": "ms-python.autopep8"
     },
     "python.formatting.provider": "none",
-    "python.autoComplete.extraPaths": []
+    "python.autoComplete.extraPaths": [],
+    "python.analysis.extraPaths": []
 }
