@@ -1,230 +1,128 @@
-import sqlite3 as sql3
-
+import sqlite3
 
 class Database:
-    """
-    Instanciar para criar um banco de dados e uma conexão.
-
-    Ex.:
-    db = DataBase("dbname")
-
-    >>> <Database object>
-    """
-
-    def __init__(
-            self,
-            name: str
-    ):
-        self._dbconnection = self._createdb(name)
+    def __init__(self, dbname: str):
+        self._dbconnection = self._connectdb(dbname)
         self._dbcursor = self._dbconnection.cursor()
-        self.tables: list = []
+        self.close(False)
 
-    def _createdb(
-            self,
-            databasename: str
-    ) -> sql3.Connection:
-
-        con = sql3.connect(databasename + '.db')
-        print('Database created successfully:', con)
+    def _connectdb(self, name: str):
+        con = sqlite3.connect(name + '.db')
+        print(f'connection to database {name} successful.')
         return con
-
-    def create_simple_table(
-            self,
-            name: str,
-            columns: str
-    ):
-        """
-        Crie uma tablena no banco de dados.
-
-        CREATE TABLE "nome_tabela"(
-            "coluna 1" "tipo_dados_para_coluna_1",
-            "coluna 2" "tipo_dados_para_coluna_2",
-        );
-
-        Args:
-            name (str): Nome da tabela
-            columns (str): Nome da Coluna e Tipo de Dado
-
-        Ex.:
-        db.create_simple_table(
-            name='Nome', columns='Col1 char(50), Col2 (integer), Col3' (real)
+    
+    def close(self, status: bool):
+        if status == True:
+            self._dbcursor.close()
+            self._dbconnection.close()
+            print('Connection closed successfully.')
+    
+    def create_table(self, table_name: str, columns: str):
+        if isinstance(table_name, str) and isinstance(columns, str):
+            sqlstatement = (
+                f"CREATE TABLE IF NOT EXISTS {table_name} (id INTEGER PRIMARY KEY AUTOINCREMENT, {columns})"
             )
-        """
-
-        if isinstance(name, str) and isinstance(columns, str):
-
-            table = f'Nome da Tabela: "{name}" | Colunas: "{columns}"'
-            self.tables.append(table)
-
-            sqlstatement = f"CREATE TABLE {name} ({columns})"
             self._dbcursor.execute(sqlstatement)
-
-            print(
-                f"Table created successfully | Name:{name}, Columns:{columns}")
-
+            self._dbconnection.commit()
+            print(f'Table: {table_name}, created successfully.')
         else:
-            print("The table 'name' and 'columns' must be of type 'str'")
+            print('ERROR')
 
-    def insert_data_in_simple_table(
-            self,
-            table: str,
-            values: list
-    ):
-        """
-        Insira dados em uma tabela:
-        >data of type str = TEXT;
-        >data of type int = INTERGER;
-        >data of type float = REAL;
-        >data of type None = NULL;
+    def insert_data(self, table_name: str, columns: list, values: list):
+        if (
+            isinstance(table_name, str)
+            and
+            isinstance(columns, list)
+            and
+            isinstance(values, list)
+        ):
+            placeholders = ', '.join(['?' for _ in columns])
+            unpacked_columns = ', '.join([i for i in columns])
+            sqlstatement = f"INSERT INTO {table_name} (id, {unpacked_columns}) VALUES (NULL, {placeholders})"
+            self._dbcursor.executemany(sqlstatement, values)
+            self._dbconnection.commit()
+            print('Successfully entered data.')
+        else:
+            print('ERROR')
 
-        INSERT INTO "nome_tabela" ("coluna 1", "coluna 2", ...)
-        VALUES ("valor 1", "valor 2", ...);
+    def select_data(self, columns: str, table_name: str):
+        if isinstance(columns, str) and isinstance(table_name, str):
+            sqlstatement = f'SELECT {columns} FROM {table_name}'
+            data = self._dbcursor.execute(sqlstatement)
+            data_list = data.fetchall()
+            print('Successfully selected data.')
+            return data_list
+        else:
+            print('ERROR')
+        
+    def delete_data(self, table_name: str, condition: str):
+        if isinstance(table_name, str) and isinstance(condition, str):
+            sqlstatement = f'DELETE FROM {table_name} WHERE {condition}'
+            self._dbcursor.execute(sqlstatement)
+            self._dbconnection.commit()
+            print('Successfully deleted data.')
+        else:
+            print('ERROR')
 
-        Args:
-            table (str): Nome da Tabela
-            value (list): Valores que serão inseridos
-
-        Ex.:
-        db.insert_data_in_simple_table(
-            table="Tabela", values="1, 2")
-        """
-
-        placeholders = ','.join(['?' for _ in values])
-        sqlstatement = f"INSERT INTO {table} VALUES ({placeholders})"
-        self._dbcursor.execute(sqlstatement, values)
-        self._dbconnection.commit()
-        print('Data entered successfully')
-
-    def delete_data_in_simple_table(
-            self,
-            table: str,
-            condition: str
-    ):
-        """
-        Delete dados de uma tabela do banco de dados baseado em uma condição.
-
-        DELETE FROM "nome_tabela"
-        WHERE "condição";
-
-        Args:
-            table (str): Table name.
-            condition (str): Condition to filter the data to be deleted.
-
-        Ex.:
-        db.delete_data_in_simple_table(
-            table="table", condition="column1 = 'value'")
-        """
-
-        sqlstatement = (
-            f"DELETE FROM {table} WHERE {condition}"
-        )
-        self._dbcursor.execute(sqlstatement)
-        self._dbconnection.commit()
-        print('The data was deleted successfully')
-
-    def update_data_in_simple_table(
-            self,
-            table: str,
-            set: str,
-            condition: str
-    ):
-        """
-        Atualize dados em uma tabela do banco de dados.
-
-        UPDATE "nome_tabela"
-        SET "coluna 1" = [novo valor]
-        WHERE "condição";
-
-        Args:
-            table (str): Nome da tabela.
-            set (str): Coluna e Novo valor.
-            condition (str): Condição onde o novo valor será inserido.
-
-        Ex.:
-        db.update_data_in_simple_table(
-            table="Tabela",
-            set="Col1 = 0",
-            condition="Col1 = NULL"
-        """
-
-        sqlstatement = (
-            f"UPDATE {table} SET {set} WHERE {condition} ")
-        self._dbcursor.execute(sqlstatement)
-        self._dbconnection.commit()
-        print('Update done successfully')
-
-    def select_data_in_simple_table(
-            self,
-            column: str,
-            table: str
-    ) -> list:
-        """
-        Consulte dados em uma tabela do banco de dados.
-
-        SELECT "nome_coluna" FROM "nome_tabela";
-
-        Args:
-            column (str): Nome da Coluna
-            table (str): Nome da Tabela
-
-        Ex.:
-        db.select_data_in_simple_table(
-            column="Col1", table="Tabela"
-        )
-
-        >>> list
-        """
-
-        sqlstatement = f"SELECT {column} FROM {table}"
-        data = self._dbcursor.execute(sqlstatement)
-        data_list = data.fetchall()
-        return data_list
-
+    def update_data(self, table_name: str, set: str, condition: str):
+        if (
+            isinstance(table_name, str)
+            and
+            isinstance(set, str)
+            and
+            isinstance(condition, str)
+        ):
+            sqlstatement = f'UPDATE {table_name} SET {set} WHERE {condition}'
+            self._dbcursor.execute(sqlstatement)
+            self._dbconnection.commit()
+            print('Successfully update data')
+        else:
+            print('ERROR')
+            
 
 if __name__ == "__main__":
 
-    # Criação e conexão do banco de dados:
-    db_system = Database("LOGIN")
+    # Conexão com Banco de dados:
+    db = Database('teste')
 
-    # Criação de tabela:
-    db_system.create_simple_table(
-        name="usuarios",
-        columns="nome, senha"
+    # Criação de Tabelas:
+    db.create_table(
+        table_name='usuarios',
+        columns='nome TEXT, senha INTEGER'
     )
 
-    # Inserindo dados na tabela:
-    db_system.insert_data_in_simple_table(
-        table="usuarios",
-        values=['Everton', 1234]
+    # Inserção dados:
+    db.insert_data(
+        table_name='usuarios',
+        columns=['nome', 'senha'],
+        values=[
+            ['Everton', 1234],
+            ['Milena', 4321],
+            ['Outro', 6644]
+        ]
     )
 
-    db_system.insert_data_in_simple_table(
-        table="usuarios",
-        values=['Milena', 4321]
-    )
-
-    # Consultando tabelas:
-    users = db_system.select_data_in_simple_table(
-        column="nome",
-        table="usuarios"
-    )
-    print(users)
-
-    password = db_system.select_data_in_simple_table(
-        column='senha',
-        table='usuarios'
-    )
-    print(password)
-
-    # Atualizando dados:
-    db_system.update_data_in_simple_table(
-        table='usuarios',
+    # Atualização de dados
+    db.update_data(
+        table_name='usuarios',
         set='senha = 8766',
-        condition='senha = 1234'
+        condition='nome = "Everton"'
     )
 
-    # Deletando dados:
-    db_system.delete_data_in_simple_table(
-        table="usuarios",
-        condition="nome = 'Milena'"
+    # Filtro/Consulta/Seleção de dados:
+    table_usuarios = db.select_data(
+        columns='*',
+        table_name='usuarios'
     )
+
+    print(table_usuarios)
+
+    # Exclução de dados:
+    db.delete_data(
+        table_name='usuarios',
+        condition='nome = "Outro"'
+    )
+
+    # Fechamento da conexão:
+    db.close(True)
+
