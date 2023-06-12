@@ -254,7 +254,7 @@ def main(page: Page):
                         alignment=MainAxisAlignment.CENTER,
                         controls=[
                             Text(
-                                value=f"Seja Bem Vindo {user} !",
+                                value=f"{user} Registrado com sucesso!",
                                 style=TextThemeStyle.TITLE_LARGE,
                                 color=ft.colors.GREEN
                             )
@@ -263,6 +263,9 @@ def main(page: Page):
                 )
             )
             page.update()
+            page.add(
+                login_page
+            )
 
     def clicked_reg_back(e):
         page.clean()
@@ -413,4 +416,5 @@ def main(page: Page):
     )
 
 
-ft.app(target=main)
+if __name__ == '__main__':
+    ft.app(target=main)

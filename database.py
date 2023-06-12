@@ -1,5 +1,6 @@
 import sqlite3
 
+
 class Database:
     def __init__(self, dbname: str):
         """
@@ -17,7 +18,7 @@ class Database:
         con = sqlite3.connect(name + '.db')
         print(f'connection to database {name} successful.')
         return con
-    
+
     def close(self, status: bool):
         """
         Fechar a Conexão com o Banco de Dados.
@@ -25,11 +26,11 @@ class Database:
         Ex.:
         db.close(True)
         """
-        if status == True:
+        if status:
             self._dbcursor.close()
             self._dbconnection.close()
             print('Connection closed successfully.')
-    
+
     def create_table(self, table_name: str, columns: str):
         """
         Criar uma Tabela no Banco de Dados.
@@ -46,7 +47,8 @@ class Database:
         """
         if isinstance(table_name, str) and isinstance(columns, str):
             sqlstatement = (
-                f"CREATE TABLE IF NOT EXISTS {table_name} (id INTEGER PRIMARY KEY AUTOINCREMENT, {columns})"
+                f"CREATE TABLE IF NOT EXISTS {table_name}\
+                     (id INTEGER PRIMARY KEY AUTOINCREMENT, {columns})"
             )
             self._dbcursor.execute(sqlstatement)
             self._dbconnection.commit()
@@ -82,7 +84,8 @@ class Database:
         ):
             placeholders = ', '.join(['?' for _ in columns])
             unpacked_columns = ', '.join([i for i in columns])
-            sqlstatement = f"INSERT INTO {table_name} (id, {unpacked_columns}) VALUES (NULL, {placeholders})"
+            sqlstatement = f"INSERT INTO {table_name}\
+                  (id, {unpacked_columns}) VALUES (NULL, {placeholders})"
             self._dbcursor.executemany(sqlstatement, values)
             self._dbconnection.commit()
             print('Successfully entered data.')
@@ -90,6 +93,20 @@ class Database:
             print('ERROR')
 
     def select_data(self, columns: str, table_name: str):
+        """
+        Colsulte dados em uma tabela no banco de dados.
+
+        Args:
+            columns (str): Colunas da tabela.
+            table_name (str): Nome da tabela.
+
+        Ex.:
+        db.select_data(
+            columns="*",
+            table_name="usuarios"
+        )
+        >>> list
+        """
         if isinstance(columns, str) and isinstance(table_name, str):
             sqlstatement = f'SELECT {columns} FROM {table_name}'
             data = self._dbcursor.execute(sqlstatement)
@@ -98,8 +115,21 @@ class Database:
             return data_list
         else:
             print('ERROR')
-        
+
     def delete_data(self, table_name: str, condition: str):
+        """
+        Exclua dados em uma tabela no banco de dados.
+
+        Args:
+            table_name (str): Nome da tabela.
+            condition (str): Condições dos dados a serem excluídos.
+
+        Ex.:
+        db.delete_data(
+            table_name="usuarios",
+            condition="nome='outro'"
+        )
+        """
         if isinstance(table_name, str) and isinstance(condition, str):
             sqlstatement = f'DELETE FROM {table_name} WHERE {condition}'
             self._dbcursor.execute(sqlstatement)
@@ -109,6 +139,21 @@ class Database:
             print('ERROR')
 
     def update_data(self, table_name: str, set: str, condition: str):
+        """
+        atualize dados em uma tabela no banco de dados.
+
+        Args:
+            table_name (str): Nome da tabela.
+            set (str): Novos dados
+            condition (str): Condição dos dados a serem atualizados.
+
+        Ex.:
+        db.delete_data(
+            table_name="usuarios",
+            set="senha=8766"
+            condition="nome = 'User'"
+        )
+        """
         if (
             isinstance(table_name, str)
             and
@@ -122,7 +167,7 @@ class Database:
             print('Successfully update data')
         else:
             print('ERROR')
-            
+
 
 if __name__ == "__main__":
 
@@ -169,4 +214,3 @@ if __name__ == "__main__":
 
     # Fechamento da conexão:
     db.close(True)
-
