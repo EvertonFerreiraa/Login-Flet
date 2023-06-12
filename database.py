@@ -2,6 +2,13 @@ import sqlite3
 
 class Database:
     def __init__(self, dbname: str):
+        """
+        Gerar uma Conexão com um banco de Dados SQLite.
+
+        Ex.:
+        db = Database("exemplo")
+
+        """
         self._dbconnection = self._connectdb(dbname)
         self._dbcursor = self._dbconnection.cursor()
         self.close(False)
@@ -12,12 +19,31 @@ class Database:
         return con
     
     def close(self, status: bool):
+        """
+        Fechar a Conexão com o Banco de Dados.
+
+        Ex.:
+        db.close(True)
+        """
         if status == True:
             self._dbcursor.close()
             self._dbconnection.close()
             print('Connection closed successfully.')
     
     def create_table(self, table_name: str, columns: str):
+        """
+        Criar uma Tabela no Banco de Dados.
+
+        Args:
+            table_name (str): Nome da Tabela.
+            columns (str): Rótulos das Colunas.
+
+        Ex.:
+        db.create_table(
+            table_name="usuarios",
+            columns="nome, senha"
+        )
+        """
         if isinstance(table_name, str) and isinstance(columns, str):
             sqlstatement = (
                 f"CREATE TABLE IF NOT EXISTS {table_name} (id INTEGER PRIMARY KEY AUTOINCREMENT, {columns})"
@@ -29,6 +55,24 @@ class Database:
             print('ERROR')
 
     def insert_data(self, table_name: str, columns: list, values: list):
+        """
+        Inserir dados em uma Tabela do Banco de DAdos.
+
+        Args:
+            table_name (str): Nome da tabela.
+            columns (list): Lista das colunas que serão inseridos dados.
+            values (list): Lista dos valores que serão inseridos.
+
+        Ex.:
+        db.insert_data(
+            table_name="usuarios",
+            columns=['nome', 'senha'],
+            values=[
+                ['user1', 1234],
+                ['user2', 4321]
+            ]
+        )
+        """
         if (
             isinstance(table_name, str)
             and
